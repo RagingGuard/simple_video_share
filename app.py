@@ -128,4 +128,7 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Debug mode is enabled by default for development convenience
+    # In production, use a WSGI server (gunicorn, uwsgi) and set FLASK_ENV=production
+    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
+    app.run(debug=debug_mode)

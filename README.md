@@ -77,6 +77,24 @@ simple_video_share/
 └── uploads/           # Uploaded videos (created automatically)
 ```
 
+## Production Deployment
+
+For production deployment:
+
+1. Set environment variables:
+```bash
+export FLASK_ENV=production
+export SECRET_KEY=your-secure-random-key
+```
+
+2. Use a production WSGI server like Gunicorn:
+```bash
+pip install gunicorn
+gunicorn app:app
+```
+
+3. **Important**: Never run Flask with `debug=True` in production as it can allow arbitrary code execution.
+
 ## License
 
 MIT License
