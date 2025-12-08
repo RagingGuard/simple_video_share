@@ -14,6 +14,10 @@ from pathlib import Path
 # Configuration
 UPLOAD_DIR = "videos"
 PORT = 8000
+MAX_FILE_SIZE = 500 * 1024 * 1024  # 500MB max file size
+ALLOWED_EXTENSIONS = {'.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv'}
+ALLOWED_MIME_TYPES = {'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 
+                      'video/x-msvideo', 'video/x-matroska'}
 
 class VideoShareHandler(SimpleHTTPRequestHandler):
     """Custom handler for video sharing functionality"""
@@ -64,7 +68,7 @@ class VideoShareHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(videos).encode())
     
     def handle_upload(self):
-        """Handle video file upload"""
+        """Handle video file upload with validation"""
         try:
             content_type = self.headers['Content-Type']
             if not content_type.startswith('multipart/form-data'):
@@ -90,12 +94,45 @@ class VideoShareHandler(SimpleHTTPRequestHandler):
                 self.send_error(400, "Bad Request: No filename provided")
                 return
             
-            # Save the file
-            filename = os.path.basename(file_item.filename)
-            filepath = os.path.join(UPLOAD_DIR, filename)
+            # Sanitize filename - get basename and remove any path components
+            original_filename = os.path.basename(file_item.filename)
+            # Remove any remaining path separators
+            original_filename = original_filename.replace('/', '').replace('\\', '')
             
+            # Validate file extension
+            file_ext = os.path.splitext(original_filename)[1].lower()
+            if file_ext not in ALLOWED_EXTENSIONS:
+                self.send_error(400, f"Bad Request: File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}")
+                return
+            
+            # Read file content with size limit
+            file_content = b''
+            chunk_size = 8192
+            total_size = 0
+            
+            while True:
+                chunk = file_item.file.read(chunk_size)
+                if not chunk:
+                    break
+                total_size += len(chunk)
+                if total_size > MAX_FILE_SIZE:
+                    self.send_error(413, f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB")
+                    return
+                file_content += chunk
+            
+            # Prevent filename collision by adding timestamp if file exists
+            filename = original_filename
+            filepath = os.path.join(UPLOAD_DIR, filename)
+            if os.path.exists(filepath):
+                name, ext = os.path.splitext(original_filename)
+                import time
+                timestamp = int(time.time())
+                filename = f"{name}_{timestamp}{ext}"
+                filepath = os.path.join(UPLOAD_DIR, filename)
+            
+            # Save the file
             with open(filepath, 'wb') as f:
-                f.write(file_item.file.read())
+                f.write(file_content)
             
             # Send success response
             self.send_response(200)
