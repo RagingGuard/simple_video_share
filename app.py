@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timezone
 from config import config
 
 # Initialize Flask app
@@ -22,7 +22,7 @@ class Video(db.Model):
     title = db.Column(db.String(200), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    uploaded_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
     def __repr__(self):
         return f'<Video {self.title}>'
@@ -32,6 +32,21 @@ def allowed_file(filename):
     """Check if file extension is allowed."""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+def get_mime_type(filename):
+    """Get MIME type based on file extension."""
+    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+    mime_types = {
+        'mp4': 'video/mp4',
+        'avi': 'video/x-msvideo',
+        'mov': 'video/quicktime',
+        'mkv': 'video/x-matroska',
+        'webm': 'video/webm'
+    }
+    return mime_types.get(ext, 'video/mp4')
+
+# Make get_mime_type available to templates
+app.jinja_env.globals.update(get_mime_type=get_mime_type)
 
 # Routes
 @app.route('/')
@@ -60,7 +75,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             # Add timestamp to filename to avoid conflicts
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_')
             filename = timestamp + filename
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
