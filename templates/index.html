@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Simple Video Share{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>All Videos</h2>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload Video</a>
+</div>
+
+{% if videos %}
+<div class="video-grid">
+    {% for video in videos %}
+    <div class="video-card">
+        <div class="video-thumbnail">
+            <a href="{{ url_for('video', video_id=video.id) }}">
+                <video width="100%" height="200">
+                    <source src="{{ url_for('uploaded_file', filename=video.filename) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </a>
+        </div>
+        <div class="video-info">
+            <h3><a href="{{ url_for('video', video_id=video.id) }}">{{ video.title }}</a></h3>
+            <p class="video-date">Uploaded: {{ video.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            {% if video.description %}
+            <p class="video-description">{{ video.description[:100] }}{% if video.description|length > 100 %}...{% endif %}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No videos uploaded yet.</p>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload your first video</a>
+</div>
+{% endif %}
+{% endblock %}
