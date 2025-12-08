@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易视频分享 - Simple Video Share</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 简易视频分享</h1>
+            <p class="subtitle">局域网视频共享平台 - LAN Video Sharing</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <h2>📤 上传视频 / Upload Video</h2>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="videoInput" accept="video/*" hidden>
+                    <label for="videoInput" class="upload-label">
+                        <div class="upload-icon">📁</div>
+                        <p>点击选择视频文件</p>
+                        <p class="hint">或拖拽文件到此处</p>
+                        <p class="hint">支持 MP4, WebM, OGG, MOV, AVI 格式</p>
+                    </label>
+                </div>
+                <div id="uploadProgress" class="upload-progress hidden">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText">上传中... 0%</p>
+                </div>
+                <div id="uploadStatus" class="status-message hidden"></div>
+            </section>
+
+            <!-- Video Player Section -->
+            <section class="player-section">
+                <h2>▶️ 视频播放器 / Video Player</h2>
+                <div class="video-player-container" id="playerContainer">
+                    <div class="no-video" id="noVideo">
+                        <p>选择下方视频开始播放</p>
+                    </div>
+                    <video id="videoPlayer" class="video-player hidden" controls>
+                        您的浏览器不支持视频播放
+                    </video>
+                    <div class="video-info" id="videoInfo"></div>
+                </div>
+            </section>
+
+            <!-- Video List Section -->
+            <section class="video-list-section">
+                <h2>📚 视频列表 / Video Library</h2>
+                <div class="refresh-container">
+                    <button id="refreshBtn" class="refresh-btn">🔄 刷新列表</button>
+                </div>
+                <div id="videoList" class="video-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Simple Video Share - 适用于局域网环境的视频分享工具</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
