@@ -7,8 +7,8 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)  # Generate random secret key for session
 
 VIDEO_ROOT = r'D:\videos-share-resouce'
-SECRET_VIDEO_ROOT = r'D:\videos-sectret'
-SECRET_PASSWORD = 'porna'
+SECRET_VIDEO_ROOT = r'D:\videos-secret-resouce'
+SECRET_PASSWORD = 'secret'
 
 # Store valid tokens and expiration times
 valid_tokens = {}
@@ -782,7 +782,7 @@ searchInput.addEventListener('input', function() {
     const keyword = this.value.toLowerCase();
     
     // Detect if trigger word is entered
-    if (keyword === 'porn' && !isSecretMode) {
+    if (keyword === 'secret' && !isSecretMode) {
         // Show password dialog
         passwordModal.style.display = 'flex';
         passwordInput.value = '';
@@ -1043,3 +1043,4 @@ def video(filename):
 
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', port=80)
+
